@@ -1,0 +1,23 @@
+Also include in the root directory of your project a PDF file containing a written final report
+describing your project and its design process. There are no specific page / word limits,
+but 2-4 pages usually are sufficient. This document should contain:
+a) At least one screenshot of your final, static visualization.
+b) A description of the data. Report where you got the data. Describe the variables. If you
+had to reformat the data or filter it in any way, provide enough details that someone
+could repeat your results. If you combined multiple datasets, specify how you
+integrated them. Mention any additional data that you used, such as shape files for
+maps. Pre-processing is important! You are not required to use every part of the
+dataset. Selectively choosing a subset can improve usability. Describe any criteria you
+used for data selection.
+c) An overview of your design rationale. A good rule of thumb to follow is “every pixel
+must be justified.” Instead of a 100,000-element breakdown, give us an overview of the
+design decisions you made and the trade-offs inherent in how you displayed the data.
+This part ought to include a description of the mapping from data to visual elements.
+Describe marks and channels you employ such as position, color, or shape. Mention
+any transformations you performed, such as log scales.
+d) The story. What does your visualization tell us? What was surprising about it? What
+insights do you want to convey to the viewer of your visualization?
+3. At the end of your PDF file, also include an outline of team contributions to the project.
+Identify how work was broken down in the group and explain each group member’s
+contributions to the project. Give a rough breakdown of how much time you spent
+developing and which parts of the project took the most time.
