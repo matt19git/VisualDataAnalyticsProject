@@ -1,7 +1,11 @@
 # Project1
+
 Milestone 1
+
 September 24, 2024
+
 Project Idea
+
 Our project idea looks at comparing movie streaming trends for movies found on pirated and streaming platforms, specifically analyzing features such as movie rating, genre and number of watches, content accessibility and pricing, to identify any trends in consumption patterns between the two that may shift usage or behavior in user preferences when watching movies.
 Member Contributions
 
