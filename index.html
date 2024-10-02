@@ -15,6 +15,9 @@
       stroke: none;
     }
   
+    #graph1 {
+      padding-left: 25px;
+    }
     </style>
 
     <p id="graph1">
@@ -105,7 +108,24 @@
               .attr("class", "x gridlines")
               .attr("transform", `translate(${margins.left}, ${chartHeight+ margins.top+10})`)
               .call(bottomGridlines);
+
+            svg.append("text")
+              .attr("class", "x label")
+              .attr("text-anchor", "end")
+              .attr("x", width / 1.6)
+              .attr("y", height - 6)
+              .text("Movie Runtimes");
+
+            svg.append("g")
+              .attr("class", "y label")
+              .attr('transform', 'translate(' + -50 + ', ' + chartHeight / 2 + ')')
+              .append('text')
+              .attr('text-anchor', 'middle')
+              .attr('transform', 'rotate(-90)')
+              .text('Y Axis Label')
+              ;
             
+
               chartArea.raise()
               console.log(movielengthextent)
               console.log(downloadsextent)
