@@ -15,6 +15,10 @@
       padding-left: 25px;
     }
 
+    #graph2 {
+      padding-left: 25px;
+    }
+
     .median {
       stroke: black;
       stroke-width: 2px;
@@ -26,15 +30,15 @@
 
     .title {
       font-size: 25px;
-      font-weight: bold;
-      fill: red;
+      fill:black;
+      font-family:"sans-serif" ;
     }
   </style>
 </head>
 
 <body>
   <p id="graph1">
-      <svg id="graph2" width="800" height="500">
+      <svg id="graph2" width="800" height="500" style = "background-color: lightgrey; border: 1px solid black">
   <script>
     const svg2 = d3.select("svg#graph2");
 
@@ -73,7 +77,7 @@
       });
       const width = svg2.attr('width');
       const height = svg2.attr('height');
-      const margin = { top: 20, right: 30, bottom: 50, left: 40 };
+      const margin = { top: 80, right: 30, bottom: 70, left: 80 };
       const chartWidth = width - margin.left - margin.right;
       const chartHeight = height - margin.top - margin.bottom;
 //colors for each streaming service, and choosing a color based on their logo/vibe
@@ -113,6 +117,7 @@
           .attr("width", 40)
           .attr("y", yScale(d.q3))
           .attr("height", yScale(d.q1) - yScale(d.q3))
+          .attr("stroke", "black")
           .attr("fill", colorScale(d.service));
 
         chartArea.append("line")
@@ -156,20 +161,20 @@
       .attr("class", "title")
       .attr("text-anchor", "middle")
       .attr("x", width / 2)
-      .attr("y", margin.top)
-      .text("Rotten Tomatoes Scores for Streaming Services");
+      .attr("y", margin.top-30)
+      .text("Rotten Tomatoes Scores Across Different Streaming Services");
       svg2.append("text")
         .attr("class", "x label")
         .attr("text-anchor", "end")
-        .attr("x", width / 2 + 40)
-        .attr("y", height - 10)
+        .attr("x", width / 2 + 50)
+        .attr("y", height - 20)
         .text("Streaming Services");
 
       svg2.append("text")
         .attr("class", "y label")
         .attr("text-anchor", "middle")
-        .attr("x", -height/2+30)
-        .attr("y", 15)
+        .attr("x", -height/2+20)
+        .attr("y", 35)
         .attr("transform", "rotate(-90)")
         .text("Rotten Tomatoes Score");
 
@@ -181,7 +186,8 @@
     </p>
 
   <p id="graph2">
-    <svg id="barchart" height="500" width="800" style="margin-top:50px"></svg>
+    <svg id="barchart" height="500" width="825" style = "background-color: lightgrey; border: 1px solid black; 
+    margin-top:50px"></svg>
     <script>
       d3.csv("streaming_service.csv").then(data => {
         data = data.filter(d =>
@@ -199,7 +205,7 @@
         const svg = d3.select("svg#barchart");
         const width = svg.attr("width");
         const height = svg.attr("height");
-        const margin = { top: 30, right: 10, bottom: 70, left: 70 };
+        const margin = { top: 80, right: 10, bottom: 70, left: 70 };
         const chartWidth = width - margin.left - margin.right;
         const chartHeight = height - margin.top - margin.bottom;
 
@@ -209,20 +215,24 @@
 
         const priceExtent = d3.extent(data, d => +d.price);
         const priceScale = d3.scaleLinear().domain([10, 19]).range([chartHeight, 0]);
+        const services = d3.map(data, d => d.service);
+        const serviceScale = d3.scaleBand().domain(services).range([0, chartWidth])
+          .padding(0.5);
+        let bottomAxis = d3.axisBottom(serviceScale);
 
-        
+
         let leftAxis = d3.axisLeft(priceScale); 
 
         let leftGridlines = d3.axisLeft(priceScale)
           .tickSize(-chartWidth - 10)
           .tickFormat("");
 
-        annotations.append("g")
+        svg.append("g")
           .attr("class", "y axis")
           .attr("transform", `translate(${margin.left - 10},${margin.top})`)
           .call(leftAxis);
 
-        annotations.append("g")
+        svg.append("g")
           .attr("class", "y gridlines")
           .attr("transform", `translate(${margin.left - 10},${margin.top})`)
           .call(leftGridlines);
@@ -234,38 +244,39 @@
 
           
 
-        const services = d3.map(data, d => d.service);
-        const serviceScale = d3.scaleBand().domain(services).range([0, chartWidth])
-          .padding(0.05);
-        let bottomAxis = d3.axisBottom(serviceScale);
+       
 
-        annotations.append("g")
+        svg.append("g")
           .attr("class", "x axis")
           .attr("transform", `translate(${margin.left},${chartHeight + margin.top})`)
           .call(bottomAxis);
 
         svg.append("text")
           .attr("text-anchor", "middle")
-          .attr("x", margin.left + chartWidth / 2)
+          .attr("x", margin.left + chartWidth / 2 - 25)
           .attr("y", height - 20)
-          .text("Streaming Service");
+          .text("Streaming Services");
 
           
 
-        chartArea.selectAll('rect.bar').data(data)
+        svg.selectAll('rect.bar').data(data)
           .join('rect').attr('class', 'bar')
           .attr("fill", d => d.color)
+          .attr("stroke", "black")
           .attr("x", d => serviceScale(d.service))
           .attr("y", d => priceScale(+d.price))
           .attr("height", d => chartHeight - priceScale(+ d.price))
-          .attr("width", serviceScale.bandwidth());
+          .attr("width", serviceScale.bandwidth())
+          .attr("transform", `translate(${margin.left},${margin.top})`);
+
 
           svg.append("text")
           .attr("class", "title")
           .attr("text-anchor", "middle")
           .attr("x", width / 2)
-          .attr("y", margin.top-10)
+          .attr("y", margin.top-40)
           .text("Price Per Month for Streaming Services");
+
 
 
       });
