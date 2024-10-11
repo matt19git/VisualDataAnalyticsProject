@@ -22,7 +22,6 @@
   <p id="graph1">
     <svg id="graph1" height="500" width="500">
 
-      im gonna touch you
       <script>
         const svg = d3.select("svg#graph1");
 
@@ -31,7 +30,7 @@
         //Have to do some stuff to convert the download and runtime from the dataset
         //into numbers from strings, because d3.autoType above for some reason could
         //not handle the commas
-        d3.csv("movies_dataset.csv")
+        d3.csv("MoviesOnStreamingPlatforms.csv")
           .then((data) => {
             piracy_dataset = data.forEach(d => {
               if (typeof d.downloads === 'string') {
