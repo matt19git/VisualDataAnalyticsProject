@@ -28,7 +28,7 @@
       // open streaming_service.csv
       d3.csv("streaming_service.csv").then(data => {
         // filter for each service, by 2021
-        const filteredData = data.filter(d =>
+        data = data.filter(d =>
           d.date.includes("Jan-2024") && ["Netflix", "Disney+", "Hulu", "HBO Max"].includes(d.service)
         );
 
@@ -40,47 +40,6 @@
         // const services = Object.keys(servicePrices);
         // const prices = Object.values(servicePrices);
 
-        // // Set up the SVG
-        // const margin = { top: 20, right: 30, bottom: 40, left: 40 };
-        // const width = 800 - margin.left - margin.right;
-        // const height = 400 - margin.top - margin.bottom;
-
-        // const svg = d3.select("body").append("svg")
-        //   .attr("width", width + margin.left + margin.right)
-        //   .attr("height", height + margin.top + margin.bottom)
-        //   .append("g")
-        //   .attr("transform", `translate(${margin.left},${margin.top})`);
-
-        // // Create scales
-        // const x = d3.scaleBand()
-        //   .domain(services)
-        //   .range([0, width])
-        //   .padding(0.1);
-
-        // const y = d3.scaleLinear()
-        //   .domain([0, d3.max(prices)])
-        //   .nice()
-        //   .range([height, 0]);
-
-        // // Create axes
-        // svg.append("g")
-        //   .attr("transform", `translate(0,${height})`)
-        //   .call(d3.axisBottom(x));
-
-        // svg.append("g")
-        //   .call(d3.axisLeft(y));
-
-        // // Create bars
-        // svg.selectAll(".bar")
-        //   .data(services)
-        //   .enter().append("rect")
-        //   .attr("class", "bar")
-        //   .attr("x", d => x(d))
-        //   .attr("y", d => y(servicePrices[d]))
-        //   .attr("width", x.bandwidth())
-        //   .attr("height", d => height - y(servicePrices[d]))
-        //   .attr("fill", "steelblue");
-
         // linear transform - create chart axes
         const svg = d3.select("svg#barchart");
         const width = svg.attr("width");
@@ -90,44 +49,44 @@
         const chartHeight = height - margin.top - margin.bottom;
         let chartArea = svg.append("g").attr("id", "points")
           .attr("transform", `translate(${margin.left},${margin.top})`);
-        let annotations = svg.append("g").attr("id","annotations");
+        let annotations = svg.append("g").attr("id", "annotations");
 
-          const priceExtent = d3.extent(data, d => d['price']);
-          const priceScale = d3.scaleLinear().domain(priceExtent).range([chartHeight, 0]);
-          let leftAxis = d3.axisLeft(priceScale)
+        const priceExtent = d3.extent(data, d => d['price']);
+        const priceScale = d3.scaleLinear().domain(priceExtent).range([chartHeight, 0]);
+        let leftAxis = d3.axisLeft(priceScale)
 
-          let leftGridlines = d3.axisLeft(priceScale)
-                            .tickSize(-chartWidth-10)
-                            .tickFormat("")
-          annotations.append("g")
-                 .attr("class", "y axis")
-                 .attr("transform",`translate(${margin.left-10},${margin.top})`)
-                 .call(leftAxis)
-          annotations.append("g")
-                 .attr("class", "y gridlines")
-                 .attr("transform",`translate(${margin.left-10},${margin.top})`)
-                 .call(leftGridlines);          
+        let leftGridlines = d3.axisLeft(priceScale)
+          .tickSize(-chartWidth - 10)
+          .tickFormat("")
+        annotations.append("g")
+          .attr("class", "y axis")
+          .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+          .call(leftAxis)
+        annotations.append("g")
+          .attr("class", "y gridlines")
+          .attr("transform", `translate(${margin.left - 10},${margin.top})`)
+          .call(leftGridlines);
 
-          const services = d3.map(data, d => d.service)  
-          serviceScale = d3.scaleBand().domain(services).range([0, chartWidth])
-                                        .padding(0.05);
-          let bottomAxis = d3.axisBottom(serviceScale)
+        const services = d3.map(data, d => d.service)
+        serviceScale = d3.scaleBand().domain(services).range([0, chartWidth])
+          .padding(0.05);
+        let bottomAxis = d3.axisBottom(serviceScale)
 
-            annotations.append("g")
-                 .attr("class", "x axis")
-                 .attr("transform",`translate(${margin.left},${chartHeight+margin.top+10})`)
-                 .call(bottomAxis);
-      
-      
-            chartArea.selectAll('rect.bar').data( data )
-               .join('rect').attr('class','bar')
-               .attr("fill", "steelblue")
-               .attr("x", d => serviceScale(d.service))
-               .attr("y", d => priceScale(d.price))
-               .attr("height", d => height - priceScale(d.price))
-               .attr("width", serviceScale.bandwidth());
-                      
-        
+        annotations.append("g")
+          .attr("class", "x axis")
+          .attr("transform", `translate(${margin.left},${chartHeight + margin.top + 10})`)
+          .call(bottomAxis);
+
+
+        chartArea.selectAll('rect.bar').data(data)
+          .join('rect').attr('class', 'bar')
+          .attr("fill", "steelblue")
+          .attr("x", d => serviceScale(d.service))
+          .attr("y", d => priceScale(d.price))
+          .attr("height", d => height - priceScale(d.price))
+          .attr("width", serviceScale.bandwidth());
+
+
         // add bars using rect
 
       });
