@@ -14,9 +14,7 @@
     #graph1 {
       padding-left: 25px;
     }
-    .box {
-      opacity: 0.6;
-    }
+
     .median {
       stroke: black;
       stroke-width: 2px;
@@ -24,6 +22,12 @@
     .whisker {
       stroke: black;
       stroke-width: 1.5px;
+    }
+
+    .title {
+      font-size: 25px;
+      font-weight: bold;
+      fill: red;
     }
   </style>
 </head>
@@ -36,15 +40,20 @@
 
     d3.csv("MoviesOnStreamingPlatforms.csv").then((data) => {
       data.forEach(d => {
+        //allowing rotten tomatoes score to be int because we need to do math on the values
         d["Rotten Tomatoes"] = +d["Rotten Tomatoes"].split("/")[0]; 
       });
-      const services = ["Netflix", "Hulu", "Prime Video", "Disney+"];
+      const services = ["Netflix", "Disney+", "Hulu", "Prime Video"];
       const groupedData = services.map(service => {
+        //getting specific streaming services, and getting a score value by adding the score 
+        //to the service if the service column equals 1, because of the way the csv we got from is set up
+        //it makes something like this necessary
         return {
           service: service,
           scores: data.filter(d => +d[service] === 1).map(d => d["Rotten Tomatoes"]) 
         };
       });
+      //finding the stats values from the data we filtered
       const stats = groupedData.map(g => {
         const sortedScores = g.scores.sort(d3.ascending);
         const q1 = d3.quantile(sortedScores, 0.25);
@@ -64,14 +73,14 @@
       });
       const width = svg2.attr('width');
       const height = svg2.attr('height');
-      const margins = { top: 20, right: 30, bottom: 50, left: 40 };
-      const chartWidth = width - margins.left - margins.right;
-      const chartHeight = height - margins.top - margins.bottom;
-
+      const margin = { top: 20, right: 30, bottom: 50, left: 40 };
+      const chartWidth = width - margin.left - margin.right;
+      const chartHeight = height - margin.top - margin.bottom;
+//colors for each streaming service, and choosing a color based on their logo/vibe
       const colorScale = d3.scaleOrdinal()
       .domain(services)
-      .range(["#FF0000", "#008000", "#8da0cb", "#e78ac3"]);
-
+      .range(["#FF0000", "#e78ac3", "#008000", "#8da0cb"]);
+//scaleBand is used for boxplot
       const xScale = d3.scaleBand()
         .domain(services)
         .range([0, chartWidth])
@@ -82,8 +91,10 @@
         .range([chartHeight, 0]);
 
       const chartArea = svg2.append('g')
-        .attr('transform', `translate(${margins.left},${margins.top})`);
+        .attr('transform', `translate(${margin.left},${margin.top})`);
 
+
+        
       chartArea.append("g")
         .attr("class", "x axis")
         .attr("transform", `translate(0, ${chartHeight})`)
@@ -141,7 +152,12 @@
           .attr("y1", yScale(d.max))
           .attr("y2", yScale(d.max));
       });
-
+      svg2.append("text")
+      .attr("class", "title")
+      .attr("text-anchor", "middle")
+      .attr("x", width / 2)
+      .attr("y", margin.top)
+      .text("Rotten Tomatoes Scores for Streaming Services");
       svg2.append("text")
         .attr("class", "x label")
         .attr("text-anchor", "end")
@@ -152,10 +168,12 @@
       svg2.append("text")
         .attr("class", "y label")
         .attr("text-anchor", "middle")
-        .attr("x", -height / 2 + 30)
+        .attr("x", -height/2+30)
         .attr("y", 15)
         .attr("transform", "rotate(-90)")
         .text("Rotten Tomatoes Score");
+
+
         
       });
     </script>
@@ -181,7 +199,7 @@
         const svg = d3.select("svg#barchart");
         const width = svg.attr("width");
         const height = svg.attr("height");
-        const margin = { top: 10, right: 10, bottom: 70, left: 70 };
+        const margin = { top: 30, right: 10, bottom: 70, left: 70 };
         const chartWidth = width - margin.left - margin.right;
         const chartHeight = height - margin.top - margin.bottom;
 
@@ -191,6 +209,8 @@
 
         const priceExtent = d3.extent(data, d => +d.price);
         const priceScale = d3.scaleLinear().domain([10, 19]).range([chartHeight, 0]);
+
+        
         let leftAxis = d3.axisLeft(priceScale); 
 
         let leftGridlines = d3.axisLeft(priceScale)
@@ -212,6 +232,8 @@
           .attr("transform", `translate(${margin.left / 3},${height / 2})rotate(-90)`)
           .text("Price per month (dollars)");
 
+          
+
         const services = d3.map(data, d => d.service);
         const serviceScale = d3.scaleBand().domain(services).range([0, chartWidth])
           .padding(0.05);
@@ -228,6 +250,8 @@
           .attr("y", height - 20)
           .text("Streaming Service");
 
+          
+
         chartArea.selectAll('rect.bar').data(data)
           .join('rect').attr('class', 'bar')
           .attr("fill", d => d.color)
@@ -235,6 +259,15 @@
           .attr("y", d => priceScale(+d.price))
           .attr("height", d => chartHeight - priceScale(+ d.price))
           .attr("width", serviceScale.bandwidth());
+
+          svg.append("text")
+          .attr("class", "title")
+          .attr("text-anchor", "middle")
+          .attr("x", width / 2)
+          .attr("y", margin.top-10)
+          .text("Price Per Month for Streaming Services");
+
+
       });
     </script>
   </p>
