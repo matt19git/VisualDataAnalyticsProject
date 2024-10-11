@@ -18,82 +18,87 @@
 </head>
 
 <body>
-  <p>hi</p>
   <p id="graph1">
   </p>
 
   <p id="graph2">
     <svg id="barchart" height="500" width="800" style="margin-top:50px"></svg>
     <script>
-      // open streaming_service.csv
       d3.csv("streaming_service.csv").then(data => {
-        // filter for each service, by 2021
         data = data.filter(d =>
           d.date.includes("Jan-2024") && ["Netflix", "Disney+", "Hulu", "HBO Max"].includes(d.service)
         );
 
-        // const servicePrices = {};
-        // filteredData.forEach(d => {
-        //   servicePrices[d.service] = +d.price; // Keep the latest price encountered
-        // });
+        const colorMap = {
+          "Netflix": "red",
+          "Disney+": "blue",
+          "Hulu": "green",
+          "HBO Max": "purple"
+        };
+        data.forEach(d => d.color = colorMap[d.service]);
 
-        // const services = Object.keys(servicePrices);
-        // const prices = Object.values(servicePrices);
-
-        // linear transform - create chart axes
         const svg = d3.select("svg#barchart");
         const width = svg.attr("width");
         const height = svg.attr("height");
-        const margin = { top: 10, right: 10, bottom: 50, left: 50 };
+        const margin = { top: 10, right: 10, bottom: 70, left: 70 };
         const chartWidth = width - margin.left - margin.right;
         const chartHeight = height - margin.top - margin.bottom;
+
         let chartArea = svg.append("g").attr("id", "points")
           .attr("transform", `translate(${margin.left},${margin.top})`);
         let annotations = svg.append("g").attr("id", "annotations");
 
-        const priceExtent = d3.extent(data, d => d['price']);
-        const priceScale = d3.scaleLinear().domain(priceExtent).range([chartHeight, 0]);
-        let leftAxis = d3.axisLeft(priceScale)
+        const priceExtent = d3.extent(data, d => +d.price);
+        const priceScale = d3.scaleLinear().domain([12, priceExtent[1]]).range([chartHeight, 0]);
+        let leftAxis = d3.axisLeft(priceScale);
 
         let leftGridlines = d3.axisLeft(priceScale)
           .tickSize(-chartWidth - 10)
-          .tickFormat("")
+          .tickFormat("");
+
         annotations.append("g")
           .attr("class", "y axis")
           .attr("transform", `translate(${margin.left - 10},${margin.top})`)
-          .call(leftAxis)
+          .call(leftAxis);
+
         annotations.append("g")
           .attr("class", "y gridlines")
           .attr("transform", `translate(${margin.left - 10},${margin.top})`)
           .call(leftGridlines);
 
-        const services = d3.map(data, d => d.service)
-        serviceScale = d3.scaleBand().domain(services).range([0, chartWidth])
+        svg.append("text")
+          .attr("text-anchor", "middle")
+          .attr("transform", `translate(${margin.left / 3},${height / 2})rotate(-90)`)
+          .text("Price per month (dollars)");
+
+        const services = d3.map(data, d => d.service);
+        const serviceScale = d3.scaleBand().domain(services).range([0, chartWidth])
           .padding(0.05);
-        let bottomAxis = d3.axisBottom(serviceScale)
+        let bottomAxis = d3.axisBottom(serviceScale);
 
         annotations.append("g")
           .attr("class", "x axis")
-          .attr("transform", `translate(${margin.left},${chartHeight + margin.top + 10})`)
+          .attr("transform", `translate(${margin.left},${chartHeight + margin.top})`)
           .call(bottomAxis);
 
+        svg.append("text")
+          .attr("text-anchor", "middle")
+          .attr("x", margin.left + chartWidth / 2)
+          .attr("y", height - 20)
+          .text("Streaming Service");
 
         chartArea.selectAll('rect.bar').data(data)
           .join('rect').attr('class', 'bar')
-          .attr("fill", "steelblue")
+          .attr("fill", d => d.color)
           .attr("x", d => serviceScale(d.service))
-          .attr("y", d => priceScale(d.price))
-          .attr("height", d => height - priceScale(d.price))
+          .attr("y", d => priceScale(+d.price))
+          .attr("height", d => chartHeight - priceScale(+d.price))
           .attr("width", serviceScale.bandwidth());
-
-
-        // add bars using rect
-
       });
-
-
     </script>
   </p>
+
+
 </body>
 
 
