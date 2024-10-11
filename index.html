@@ -86,7 +86,14 @@
 //colors for each streaming service, and choosing a color based on their logo/vibe
       const colorScale = d3.scaleOrdinal()
       .domain(services)
-      .range(["#FF0000", "#e78ac3", "#008000", "#8da0cb"]);
+      .range(["#E50914", "#3e66ef","#008000","#00A8E1"]);
+      <!-- const colorMap = {
+        "Netflix": "#E50914",
+        "Hulu": "black",
+        "Prime Video": "#00A8E1",
+        "Disney+": "#113CCF",
+      };
+      data.forEach(d => d.color = colorMap[d.service]); -->
 //scaleBand is used for boxplot
       const xScale = d3.scaleBand()
         .domain(services)
