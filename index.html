@@ -14,26 +14,167 @@
     #graph1 {
       padding-left: 25px;
     }
+    .box {
+      opacity: 0.6;
+    }
+    .median {
+      stroke: black;
+      stroke-width: 2px;
+    }
+    .whisker {
+      stroke: black;
+      stroke-width: 1.5px;
+    }
   </style>
 </head>
 
 <body>
   <p id="graph1">
-  </p>
+      <svg id="graph2" width="800" height="500">
+  <script>
+    const svg2 = d3.select("svg#graph2");
+
+    d3.csv("MoviesOnStreamingPlatforms.csv").then((data) => {
+      data.forEach(d => {
+        d["Rotten Tomatoes"] = +d["Rotten Tomatoes"].split("/")[0]; 
+      });
+      const services = ["Netflix", "Hulu", "Prime Video", "Disney+"];
+      const groupedData = services.map(service => {
+        return {
+          service: service,
+          scores: data.filter(d => +d[service] === 1).map(d => d["Rotten Tomatoes"]) 
+        };
+      });
+      const stats = groupedData.map(g => {
+        const sortedScores = g.scores.sort(d3.ascending);
+        const q1 = d3.quantile(sortedScores, 0.25);
+        const median = d3.quantile(sortedScores, 0.5);
+        const q3 = d3.quantile(sortedScores, 0.75);
+        const min = d3.min(sortedScores);
+        const max = d3.max(sortedScores);
+        console.log(sortedScores)
+        console.log(min)
+        console.log(max)
+        console.log(q1)
+        console.log(q3)
+        return {
+          service: g.service,
+          q1, median, q3, min, max
+        };
+      });
+      const width = svg2.attr('width');
+      const height = svg2.attr('height');
+      const margins = { top: 20, right: 30, bottom: 50, left: 40 };
+      const chartWidth = width - margins.left - margins.right;
+      const chartHeight = height - margins.top - margins.bottom;
+
+      const colorScale = d3.scaleOrdinal()
+      .domain(services)
+      .range(["#FF0000", "#008000", "#8da0cb", "#e78ac3"]);
+
+      const xScale = d3.scaleBand()
+        .domain(services)
+        .range([0, chartWidth])
+        .padding(0.4);
+
+      const yScale = d3.scaleLinear()
+        .domain([0, 100]) 
+        .range([chartHeight, 0]);
+
+      const chartArea = svg2.append('g')
+        .attr('transform', `translate(${margins.left},${margins.top})`);
+
+      chartArea.append("g")
+        .attr("class", "x axis")
+        .attr("transform", `translate(0, ${chartHeight})`)
+        .call(d3.axisBottom(xScale));
+
+      chartArea.append("g")
+        .attr("class", "y axis")
+        .call(d3.axisLeft(yScale));
+
+      stats.forEach((d, i) => {
+        const center = xScale(d.service) + xScale.bandwidth() / 2;
+
+        chartArea.append("rect")
+          .attr("class", "box")
+          .attr("x", center - 20)
+          .attr("width", 40)
+          .attr("y", yScale(d.q3))
+          .attr("height", yScale(d.q1) - yScale(d.q3))
+          .attr("fill", colorScale(d.service));
+
+        chartArea.append("line")
+          .attr("class", "median")
+          .attr("x1", center - 20)
+          .attr("x2", center + 20)
+          .attr("y1", yScale(d.median))
+          .attr("y2", yScale(d.median));
+
+          chartArea.append("line")
+          .attr("class", "whisker")
+          .attr("x1", center)
+          .attr("x2", center)
+          .attr("y1", yScale(d.min))
+          .attr("y2", yScale(d.q1))
+          .attr("fill", colorScale(d.service));
+
+        chartArea.append("line")
+          .attr("class", "whisker")
+          .attr("x1", center)
+          .attr("x2", center)
+          .attr("y1", yScale(d.q3))
+          .attr("y2", yScale(d.max))
+          .attr("fill", colorScale(d.service));
+
+        chartArea.append("line")
+          .attr("class", "whisker")
+          .attr("x1", center - 10)
+          .attr("x2", center + 10)
+          .attr("y1", yScale(d.min))
+          .attr("y2", yScale(d.min));
+
+        chartArea.append("line")
+          .attr("class", "whisker") 
+          .attr("x1", center - 10)
+          .attr("x2", center + 10)
+          .attr("y1", yScale(d.max))
+          .attr("y2", yScale(d.max));
+      });
+
+      svg2.append("text")
+        .attr("class", "x label")
+        .attr("text-anchor", "end")
+        .attr("x", width / 2 + 40)
+        .attr("y", height - 10)
+        .text("Streaming Services");
+
+      svg2.append("text")
+        .attr("class", "y label")
+        .attr("text-anchor", "middle")
+        .attr("x", -height / 2 + 30)
+        .attr("y", 15)
+        .attr("transform", "rotate(-90)")
+        .text("Rotten Tomatoes Score");
+        
+      });
+    </script>
+    </svg>
+    </p>
 
   <p id="graph2">
     <svg id="barchart" height="500" width="800" style="margin-top:50px"></svg>
     <script>
       d3.csv("streaming_service.csv").then(data => {
         data = data.filter(d =>
-          d.date.includes("Jan-2024") && ["Netflix", "Disney+", "Hulu", "HBO Max"].includes(d.service)
+          d.date.includes("Jan-2024") && ["Netflix", "Disney+", "Hulu", "Prime Video"].includes(d.service)
         );
 
         const colorMap = {
-          "Netflix": "red",
-          "Disney+": "blue",
-          "Hulu": "green",
-          "HBO Max": "purple"
+          "Netflix": "#FF0000",
+          "Hulu": "#008000",
+          "Prime Video": "#8da0cb",
+          "Disney+": "#e78ac3",
         };
         data.forEach(d => d.color = colorMap[d.service]);
 
@@ -49,8 +190,8 @@
         let annotations = svg.append("g").attr("id", "annotations");
 
         const priceExtent = d3.extent(data, d => +d.price);
-        const priceScale = d3.scaleLinear().domain([12, priceExtent[1]]).range([chartHeight, 0]);
-        let leftAxis = d3.axisLeft(priceScale);
+        const priceScale = d3.scaleLinear().domain([10, 19]).range([chartHeight, 0]);
+        let leftAxis = d3.axisLeft(priceScale); 
 
         let leftGridlines = d3.axisLeft(priceScale)
           .tickSize(-chartWidth - 10)
@@ -92,7 +233,7 @@
           .attr("fill", d => d.color)
           .attr("x", d => serviceScale(d.service))
           .attr("y", d => priceScale(+d.price))
-          .attr("height", d => chartHeight - priceScale(+d.price))
+          .attr("height", d => chartHeight - priceScale(+ d.price))
           .attr("width", serviceScale.bandwidth());
       });
     </script>
