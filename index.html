@@ -18,143 +18,153 @@
     #graph1 {
       padding-left: 25px;
     }
+    #graph2 {
+      padding-left: 25px;
+    }
+    .box {
+      opacity: 0.6;
+    }
+    .median {
+      stroke: red;
+      stroke-width: 2px;
+    }
+    .whisker {
+      stroke: black;
+      stroke-width: 1.5px;
+    }
     </style>
 
-    <p id="graph1">
-      <svg id="graph1" height="500" width="500">
+      <p id="graph2">
+      <svg id="graph2" width="800" height="500">
+  <script>
+    const svg2 = d3.select("svg#graph2");
 
+    d3.csv("MoviesOnStreamingPlatforms.csv").then((data) => {
+      data.forEach(d => {
+        d["Rotten Tomatoes"] = +d["Rotten Tomatoes"].split("/")[0]; 
+      });
+      const services = ["Netflix", "Hulu", "Prime Video", "Disney+"];
+      const groupedData = services.map(service => {
+        return {
+          service: service,
+          scores: data.filter(d => +d[service] === 1).map(d => d["Rotten Tomatoes"]) 
+        };
+      });
+      const stats = groupedData.map(g => {
+        const sortedScores = g.scores.sort(d3.ascending);
+        const q1 = d3.quantile(sortedScores, 0.25);
+        const median = d3.quantile(sortedScores, 0.5);
+        const q3 = d3.quantile(sortedScores, 0.75);
+        const min = d3.min(sortedScores);
+        const max = d3.max(sortedScores);
+        console.log(sortedScores)
+        console.log(min)
+        console.log(max)
+        console.log(q1)
+        console.log(q3)
+        return {
+          service: g.service,
+          q1, median, q3, min, max
+        };
+      });
+      const width = svg2.attr('width');
+      const height = svg2.attr('height');
+      const margins = { top: 20, right: 30, bottom: 50, left: 40 };
+      const chartWidth = width - margins.left - margins.right;
+      const chartHeight = height - margins.top - margins.bottom;
 
-        <script>
-          const svg = d3.select("svg#graph1");
+      const colorScale = d3.scaleOrdinal()
+      .domain(services)
+      .range(["#FF0000", "#008000", "#8da0cb", "#e78ac3"]);
 
-          <!-- d3.csv("movies_dataset.csv", d3.autoType)
-          .then( (data) => { -->
-          //Have to do some stuff to convert the download and runtime from the dataset
-          //into numbers from strings, because d3.autoType above for some reason could
-          //not handle the commas
-          d3.csv("movies_dataset.csv")
-            .then((data) => {
-            piracy_dataset = data.forEach(d => {
-            if (typeof d.downloads === 'string') {
-        d.downloads = parseInt(d.downloads.replace(/,/g, ''), 10);
-      }
-      if (typeof d.run_time === 'string') {
-        d.run_time = parseInt(d.run_time.replace(/,/g, ''), 10);
-      }
+      const xScale = d3.scaleBand()
+        .domain(services)
+        .range([0, chartWidth])
+        .padding(0.4);
+
+      const yScale = d3.scaleLinear()
+        .domain([0, 100]) 
+        .range([chartHeight, 0]);
+
+      const chartArea = svg2.append('g')
+        .attr('transform', `translate(${margins.left},${margins.top})`);
+
+      chartArea.append("g")
+        .attr("class", "x axis")
+        .attr("transform", `translate(0, ${chartHeight})`)
+        .call(d3.axisBottom(xScale));
+
+      chartArea.append("g")
+        .attr("class", "y axis")
+        .call(d3.axisLeft(yScale));
+
+      stats.forEach((d, i) => {
+        const center = xScale(d.service) + xScale.bandwidth() / 2;
+
+        chartArea.append("rect")
+          .attr("class", "box")
+          .attr("x", center - 20)
+          .attr("width", 40)
+          .attr("y", yScale(d.q3))
+          .attr("height", yScale(d.q1) - yScale(d.q3))
+          .attr("fill", colorScale(d.service));
+
+        chartArea.append("line")
+          .attr("class", "median")
+          .attr("x1", center - 20)
+          .attr("x2", center + 20)
+          .attr("y1", yScale(d.median))
+          .attr("y2", yScale(d.median));
+
+          chartArea.append("line")
+          .attr("class", "whisker")
+          .attr("x1", center)
+          .attr("x2", center)
+          .attr("y1", yScale(d.min))
+          .attr("y2", yScale(d.q1))
+          .attr("fill", colorScale(d.service));
+
+        chartArea.append("line")
+          .attr("class", "whisker")
+          .attr("x1", center)
+          .attr("x2", center)
+          .attr("y1", yScale(d.q3))
+          .attr("y2", yScale(d.max))
+          .attr("fill", colorScale(d.service));
+
+        chartArea.append("line")
+          .attr("class", "whisker")
+          .attr("x1", center - 10)
+          .attr("x2", center + 10)
+          .attr("y1", yScale(d.min))
+          .attr("y2", yScale(d.min));
+
+        chartArea.append("line")
+          .attr("class", "whisker") 
+          .attr("x1", center - 10)
+          .attr("x2", center + 10)
+          .attr("y1", yScale(d.max))
+          .attr("y2", yScale(d.max));
+      });
+
+      svg2.append("text")
+        .attr("class", "x label")
+        .attr("text-anchor", "end")
+        .attr("x", width / 2 + 40)
+        .attr("y", height - 10)
+        .text("Streaming Services");
+
+      svg2.append("text")
+        .attr("class", "y label")
+        .attr("text-anchor", "middle")
+        .attr("x", -height / 2 + 30)
+        .attr("y", 15)
+        .attr("transform", "rotate(-90)")
+        .text("Rotten Tomatoes Score");
+
     });
-            d3.csv("netflix_titles.csv", d3.autoType)
-          .then( (data2) => {
-            
-        // 1. Check data quality
-            
-            piracy_dataset = data.filter(d => d.run_time > 0 && d.downloads > 0); //piracy movies that have at least 1 download
-            netflix_dataset = data2.filter(d => d.type === 'Movie'); //netflix dataset showing only movies
-            console.log(piracy_dataset)
-            console.log(netflix_dataset)
-            netflixDirectors = new Set(netflix_dataset.map(d => d.director));
-            sharedDirectorDataset = piracy_dataset.filter(d => netflixDirectors.has(d.director)); //piracy dataset, but only with directors who were on netflix dataset
-            console.log(sharedDirectorDataset)
-
-
-            const width = svg.attr('width');
-            const height = svg.attr('height');
-            const margins = { top: 20, right: 20, bottom: 50, left: 60 }; // You can also include quotes
-            const chartWidth = width - margins.left - margins.right;
-            const chartHeight = height - margins.top - margins.bottom;
-            let chartArea = svg.append('g')
-              .attr('transform', `translate(${margins.left},${margins.top})`);
-            const movielengthextent = d3.extent(piracy_dataset, d => d['run_time']);
-            
-            const downloadsextent = d3.extent(piracy_dataset, d => d['downloads']);
-          
-            let xscale = d3.scaleLinear()
-              .domain(movielengthextent) // From our data
-              .range([0, chartWidth]);
-            let yscale = d3.scaleLinear()
-              .domain(downloadsextent) // From our data
-              .range([chartHeight, 0]);
-              piracy_dataset.forEach((d, i) => {
-                chartArea.append('circle')
-                  .attr('r', 3)
-                  .attr('cx', xscale(d['run_time']))
-                  .attr('cy', yscale(d['downloads']))
-                  .attr('opacity', .3)
-                  .style('fill', 'darkblue');
-                  console.log(i)
-  
-  
-              });
-            let leftAxis = d3.axisLeft(yscale);
-            svg.append("g")
-              .attr("class", "y axis")
-              .attr("transform", `translate(${margins.left-10}, ${margins.top})`)
-              .call(leftAxis);
-
-            let bottomAxis = d3.axisBottom(xscale).ticks(9);
-            svg.append("g")
-              .attr("class", "x axis")
-              .attr("transform", `translate(${margins.left}, ${chartHeight+ margins.top+10})`)
-              .call(bottomAxis);
-
-
-            let leftGridlines = d3.axisLeft(yscale).tickFormat("").tickSize(-chartWidth - 10);
-            svg.append("g")
-              .attr("class", "y gridlines")
-              .attr("transform", `translate(${margins.left-10}, ${margins.top})`)
-              .call(leftGridlines);
-
-            let bottomGridlines = d3.axisBottom(xscale).tickFormat("").tickSize(-chartHeight - 10);
-            svg.append("g")
-              .attr("class", "x gridlines")
-              .attr("transform", `translate(${margins.left}, ${chartHeight+ margins.top+10})`)
-              .call(bottomGridlines);
-
-            svg.append("text")
-              .attr("class", "x label")
-              .attr("text-anchor", "end")
-              .attr("x", width / 1.6)
-              .attr("y", height - 6)
-              .text("Movie Runtimes");
-
-            svg.append("g")
-              .attr("class", "y label")
-              .attr('transform', 'translate(' + -50 + ', ' + chartHeight / 2 + ')')
-              .append('text')
-              .attr('text-anchor', 'middle')
-              .attr('transform', 'rotate(-90)')
-              .text('Y Axis Label')
-              ;
-            
-
-              chartArea.raise()
-              console.log(movielengthextent)
-              console.log(downloadsextent)
-
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-          })
-
-
-
-
-
-        });
-        </script>
-      </svg>
+  </script>
+  </svg>
     </p>
   </head>
 </body>
