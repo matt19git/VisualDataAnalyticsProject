@@ -37,8 +37,11 @@
 </head>
 
 <body>
+  <h2 class = "title">Graph 1: Distributions of Rotten Tomato Scores Across Streaming Services</h2>
+  <p class = "desc"> This graph displays data on the mean, min, max and outlier values of the Rotten Tomatoes 
+    scores for each streaming service through box plot visualizations.</p>
   <p id="graph1">
-      <svg id="graph2" width="800" height="500" style = "background-color: lightgrey; border: 1px solid black">
+      <svg id="graph2" width="800" height="500" style = "background-color: whitesmoke; border: 1px solid black">
   <script>
     const svg2 = d3.select("svg#graph2");
 
@@ -72,7 +75,7 @@
         console.log(q3)
         return {
           service: g.service,
-          q1, median, q3, min, max
+          q1, median, q3, min, max, sortedScores
         };
       });
       const width = svg2.attr('width');
@@ -107,9 +110,24 @@
       chartArea.append("g")
         .attr("class", "y axis")
         .call(d3.axisLeft(yScale));
-
+      
+      const jitterWidth = 50;
+      stats.forEach(d => {
+        const center = xScale(d.service) + xScale.bandwidth() / 2;
+    
+        d.sortedScores.forEach(score => {
+          chartArea.append("circle")
+            .attr("cx", center - jitterWidth / 2 + Math.random() * jitterWidth) 
+            .attr("cy", yScale(score)) 
+            .attr("r", 4) 
+            .style("fill", colorScale(d.service)) 
+            .style("opacity", 0.2) 
+            .attr("stroke", "black")
+        });
+      });
       stats.forEach((d, i) => {
         const center = xScale(d.service) + xScale.bandwidth() / 2;
+        
 
         chartArea.append("rect")
           .attr("class", "box")
@@ -157,12 +175,7 @@
           .attr("y1", yScale(d.max))
           .attr("y2", yScale(d.max));
       });
-      svg2.append("text")
-      .attr("class", "title")
-      .attr("text-anchor", "middle")
-      .attr("x", width / 2)
-      .attr("y", margin.top-30)
-      .text("Rotten Tomatoes Scores Across Different Streaming Services");
+     
       svg2.append("text")
         .attr("class", "x label")
         .attr("text-anchor", "end")
@@ -179,15 +192,18 @@
         .text("Rotten Tomatoes Score");
 
 
+  
         
       });
     </script>
     </svg>
     </p>
 
+    <h2 class = "title">Graph 2: Price Per Month for Different Streaming Services (in $)</h1>
+      <p class = "desc"> This bar graph visualization represents the differences in price of each streaming platform 
+        for Netflix, Disney+, Hulu, and Prime Video per month in dollars</p>
   <p id="graph2">
-    <svg id="barchart" height="500" width="825" style = "background-color: lightgrey; border: 1px solid black; 
-    margin-top:50px"></svg>
+    <svg id="barchart" height="500" width="825" style = "background-color: whitesmoke; border: 1px solid black; "></svg>
     <script>
       d3.csv("streaming_service.csv").then(data => {
         data = data.filter(d =>
@@ -195,10 +211,10 @@
         );
 
         const colorMap = {
-          "Netflix": "#FF0000",
-          "Hulu": "#008000",
-          "Prime Video": "#8da0cb",
-          "Disney+": "#e78ac3",
+          "Netflix": "#E50914",
+          "Hulu": "black",
+          "Prime Video": "#00A8E1",
+          "Disney+": "#113CCF",
         };
         data.forEach(d => d.color = colorMap[d.service]);
 
@@ -270,14 +286,34 @@
           .attr("transform", `translate(${margin.left},${margin.top})`);
 
 
-          svg.append("text")
-          .attr("class", "title")
-          .attr("text-anchor", "middle")
-          .attr("x", width / 2)
-          .attr("y", margin.top-40)
-          .text("Price Per Month for Streaming Services");
 
+          svg.append("svg:image")
+            .attr('x', 154.5)
+            .attr('y', 280)
+            .attr('width', 80)
+            .attr('height', 80)
+            .attr("xlink:href", "netflix-logo.jpg")
 
+          svg.append("svg:image")
+            .attr('x', 485.5)
+            .attr('y', 190)
+            .attr('width', 80)
+            .attr('height', 80)
+            .attr("xlink:href", "hulu-logo.png")
+
+            svg.append("svg:image")
+            .attr('x', 324)
+            .attr('y', 310)
+            .attr('width', 70)
+            .attr('height', 70)
+            .attr("xlink:href", "disney-logo.png")
+
+            svg.append("svg:image")
+            .attr('x', 646)
+            .attr('y', 345)
+            .attr('width', 90)
+            .attr('height', 90)
+            .attr("xlink:href", "primevideo-logo.png")
 
       });
     </script>
