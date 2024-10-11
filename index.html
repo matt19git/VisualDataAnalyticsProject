@@ -2,7 +2,6 @@
 
 <head>
   <script src="https://d3js.org/d3.v7.min.js"></script>
-
   <style>
     .gridlines line {
       stroke: #bbb;
@@ -19,145 +18,12 @@
 </head>
 
 <body>
+  <p>hi</p>
   <p id="graph1">
-    <svg id="graph1" height="500" width="500">
-
-      <script>
-        const svg = d3.select("svg#graph1");
-
-        <!-- d3.csv("movies_dataset.csv", d3.autoType)
-        .then( (data) => { -->
-        //Have to do some stuff to convert the download and runtime from the dataset
-        //into numbers from strings, because d3.autoType above for some reason could
-        //not handle the commas
-        d3.csv("MoviesOnStreamingPlatforms.csv")
-          .then((data) => {
-            piracy_dataset = data.forEach(d => {
-              if (typeof d.downloads === 'string') {
-                d.downloads = parseInt(d.downloads.replace(/,/g, ''), 10);
-              }
-              if (typeof d.run_time === 'string') {
-                d.run_time = parseInt(d.run_time.replace(/,/g, ''), 10);
-              }
-            });
-            d3.csv("netflix_titles.csv", d3.autoType)
-              .then((data2) => {
-
-                // 1. Check data quality
-
-                piracy_dataset = data.filter(d => d.run_time > 0 && d.downloads > 0); //piracy movies that have at least 1 download
-                netflix_dataset = data2.filter(d => d.type === 'Movie'); //netflix dataset showing only movies
-                console.log(piracy_dataset)
-                console.log(netflix_dataset)
-                netflixDirectors = new Set(netflix_dataset.map(d => d.director));
-                sharedDirectorDataset = piracy_dataset.filter(d => netflixDirectors.has(d.director)); //piracy dataset, but only with directors who were on netflix dataset
-                console.log(sharedDirectorDataset)
-
-
-                const width = svg.attr('width');
-                const height = svg.attr('height');
-                const margins = { top: 20, right: 20, bottom: 50, left: 60 }; // You can also include quotes
-                const chartWidth = width - margins.left - margins.right;
-                const chartHeight = height - margins.top - margins.bottom;
-                let chartArea = svg.append('g')
-                  .attr('transform', `translate(${margins.left},${margins.top})`);
-                const movielengthextent = d3.extent(piracy_dataset, d => d['run_time']);
-
-                const downloadsextent = d3.extent(piracy_dataset, d => d['downloads']);
-
-                let xscale = d3.scaleLinear()
-                  .domain(movielengthextent) // From our data
-                  .range([0, chartWidth]);
-                let yscale = d3.scaleLinear()
-                  .domain(downloadsextent) // From our data
-                  .range([chartHeight, 0]);
-                piracy_dataset.forEach((d, i) => {
-                  chartArea.append('circle')
-                    .attr('r', 3)
-                    .attr('cx', xscale(d['run_time']))
-                    .attr('cy', yscale(d['downloads']))
-                    .attr('opacity', .3)
-                    .style('fill', 'darkblue');
-                  console.log(i)
-
-
-                });
-                let leftAxis = d3.axisLeft(yscale);
-                svg.append("g")
-                  .attr("class", "y axis")
-                  .attr("transform", `translate(${margins.left - 10}, ${margins.top})`)
-                  .call(leftAxis);
-
-                let bottomAxis = d3.axisBottom(xscale).ticks(9);
-                svg.append("g")
-                  .attr("class", "x axis")
-                  .attr("transform", `translate(${margins.left}, ${chartHeight + margins.top + 10})`)
-                  .call(bottomAxis);
-
-
-                let leftGridlines = d3.axisLeft(yscale).tickFormat("").tickSize(-chartWidth - 10);
-                svg.append("g")
-                  .attr("class", "y gridlines")
-                  .attr("transform", `translate(${margins.left - 10}, ${margins.top})`)
-                  .call(leftGridlines);
-
-                let bottomGridlines = d3.axisBottom(xscale).tickFormat("").tickSize(-chartHeight - 10);
-                svg.append("g")
-                  .attr("class", "x gridlines")
-                  .attr("transform", `translate(${margins.left}, ${chartHeight + margins.top + 10})`)
-                  .call(bottomGridlines);
-
-                svg.append("text")
-                  .attr("class", "x label")
-                  .attr("text-anchor", "end")
-                  .attr("x", width / 1.6)
-                  .attr("y", height - 6)
-                  .text("Movie Runtimes");
-
-                svg.append("g")
-                  .attr("class", "y label")
-                  .attr('transform', 'translate(' + -50 + ', ' + chartHeight / 2 + ')')
-                  .append('text')
-                  .attr('text-anchor', 'middle')
-                  .attr('transform', 'rotate(-90)')
-                  .text('Y Axis Label')
-                  ;
-
-
-                chartArea.raise()
-                console.log(movielengthextent)
-                console.log(downloadsextent)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-              })
-
-
-
-
-
-          });
-      </script>
-    </svg>
   </p>
 
   <p id="graph2">
-    <svg id="barchart" height="500" width="800" style="margin-top:50px">
-    </svg>
+    <svg id="barchart" height="500" width="800" style="margin-top:50px"></svg>
     <script>
       // open streaming_service.csv
       d3.csv("streaming_service.csv").then(data => {
@@ -165,6 +31,55 @@
         const filteredData = data.filter(d =>
           d.date.includes("Jan-2024") && ["Netflix", "Disney+", "Hulu", "HBO Max"].includes(d.service)
         );
+
+        // const servicePrices = {};
+        // filteredData.forEach(d => {
+        //   servicePrices[d.service] = +d.price; // Keep the latest price encountered
+        // });
+
+        // const services = Object.keys(servicePrices);
+        // const prices = Object.values(servicePrices);
+
+        // // Set up the SVG
+        // const margin = { top: 20, right: 30, bottom: 40, left: 40 };
+        // const width = 800 - margin.left - margin.right;
+        // const height = 400 - margin.top - margin.bottom;
+
+        // const svg = d3.select("body").append("svg")
+        //   .attr("width", width + margin.left + margin.right)
+        //   .attr("height", height + margin.top + margin.bottom)
+        //   .append("g")
+        //   .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // // Create scales
+        // const x = d3.scaleBand()
+        //   .domain(services)
+        //   .range([0, width])
+        //   .padding(0.1);
+
+        // const y = d3.scaleLinear()
+        //   .domain([0, d3.max(prices)])
+        //   .nice()
+        //   .range([height, 0]);
+
+        // // Create axes
+        // svg.append("g")
+        //   .attr("transform", `translate(0,${height})`)
+        //   .call(d3.axisBottom(x));
+
+        // svg.append("g")
+        //   .call(d3.axisLeft(y));
+
+        // // Create bars
+        // svg.selectAll(".bar")
+        //   .data(services)
+        //   .enter().append("rect")
+        //   .attr("class", "bar")
+        //   .attr("x", d => x(d))
+        //   .attr("y", d => y(servicePrices[d]))
+        //   .attr("width", x.bandwidth())
+        //   .attr("height", d => height - y(servicePrices[d]))
+        //   .attr("fill", "steelblue");
 
         // linear transform - create chart axes
         const svg = d3.select("svg#barchart");
