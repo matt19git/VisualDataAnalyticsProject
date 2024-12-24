@@ -1,48 +1,5 @@
 # Project1
 
-Milestone 1
-
-September 24, 2024
-
-Project Idea
-
-Our project idea looks at comparing movie streaming trends for movies found on pirated and streaming platforms, specifically analyzing features such as movie rating, genre and number of watches, content accessibility and pricing, to identify any trends in consumption patterns between the two that may shift usage or behavior in user preferences when watching movies.
-Member Contributions
-
-Maïté Sadeh:
-Brainstormed various initial ideas, created and shared google drive folder, helped edit final project idea statement
-
-Matthew Sadowski:
-Brainstorming idea, shared document, found movie piracy dataset that we may potentially use.
-
-Benjamin Perl:
-Brainstormed topics
-Drafted project descriptions
-
-Kai Barker:
-Topic brainstorming, dataset collection, drafted description and piracy idea
-
-
-Milestone 2
-October 1st, 2024
-Progress
-We have searched for and procured new datasets based on milestone 1 feedback, refined channels for analysis, and initialized the group GitHub repository with a Readme and dataset uploads. Work has started on drafting visualizations and some initial data cleaning and tidying.
-Member Contributions
-Maïté Sadeh
-Searched for new datasets
-Refined channels for analysis 
-Matthew Sadowski
-Initialized group Github repository (Readme, uploaded datasets, etc)
-Drafted visualizations
-Benjamin Perl
-Procured new datasets based on milestone 1 feedback
-Started on some data cleaning/tidying
-Compiled Milestone 2 write up
-Kai Barker
-Drafted visualizations
-Searched for new datasets
-Refined channels for analysis 
-
 Comparing Different Streaming Services Show Ratings vs. Their Prices
 Kai Barker, Benjamin Perl, Maïté Sadeh, Matthew Sadowski
 
